@@ -12,5 +12,5 @@ export const generateMetadata = () =>
   });
 
 export default function SocialBookmarkingPage({ searchParams }: { searchParams?: { category?: string } }) {
-  return <TaskListPage task="sbm" category={searchParams?.category} />;
+  return <TaskListPage task="sbm" category={searchParams?.category} appearance="marketing" />;
 }

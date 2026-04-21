@@ -1,115 +1,64 @@
-﻿'use client'
-
-import { useState } from 'react'
-import Image from 'next/image'
-import { PageShell } from '@/components/shared/page-shell'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
+import type { Metadata } from 'next'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { useToast } from '@/components/ui/use-toast'
 import { mockPressAssets, mockPressCoverage } from '@/data/mock-data'
+import { SITE_CONFIG } from '@/lib/site-config'
+import { buildPageMetadata } from '@/lib/seo'
+import { MarketingFeatureCard, MarketingPublicShell, MarketingStatGrid } from '@/components/marketing/marketing-public-shell'
+import { PressKitClient } from '@/components/marketing/press-kit-client'
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata({
+    path: '/press',
+    title: `Press | ${SITE_CONFIG.name}`,
+    description: 'Media resources, coverage, and talking points about profiles and social bookmarking.',
+    openGraphTitle: `Press | ${SITE_CONFIG.name}`,
+    openGraphDescription: 'Download brand assets and read recent coverage.',
+  })
+}
 
 export default function PressPage() {
-  const { toast } = useToast()
-  const [activeAssetId, setActiveAssetId] = useState<string | null>(null)
-  const activeAsset = mockPressAssets.find((asset) => asset.id === activeAssetId)
-
   return (
-    <PageShell
+    <MarketingPublicShell
+      eyebrow="Company"
       title="Press"
-      description="Media resources, brand assets, and press coverage."
+      description="Everything you need to cover profiles, collaborative bookmarking, and the quieter side of social software."
+      actions={
+        <>
+          <Button asChild className="rounded-full bg-neutral-950 px-6 text-white hover:bg-neutral-800">
+            <Link href="mailto:press@example.com">Email press</Link>
+          </Button>
+          <Button asChild variant="outline" className="rounded-full border-neutral-300 bg-white px-6">
+            <Link href="/contact">Book a briefing</Link>
+          </Button>
+        </>
+      }
     >
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card className="border-border bg-card">
-          <CardContent className="p-6 space-y-3">
-            <h2 className="text-lg font-semibold text-foreground">Press Kit</h2>
-            <p className="text-sm text-muted-foreground">
-              Download logos, product screenshots, and brand guidelines for media use.
-            </p>
-            <div className="grid gap-2">
-              {mockPressAssets.map((asset) => (
-                <div key={asset.id} className="rounded-lg border border-border bg-secondary/40 px-4 py-3">
-                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{asset.title}</p>
-                      <p className="text-xs text-muted-foreground">{asset.description}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">{asset.fileType}</Badge>
-                      <Button size="sm" variant="outline" onClick={() => setActiveAssetId(asset.id)}>
-                        Preview
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          toast({
-                            title: 'Download started',
-                            description: `${asset.title} is downloading.`,
-                          })
-                        }
-                      >
-                        Download
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-        <div className="space-y-4">
-          {mockPressCoverage.map((item) => (
-            <Card key={item.id} className="border-border bg-card transition-transform hover:-translate-y-1">
-              <CardContent className="p-6">
-                <div className="text-xs uppercase tracking-wide text-muted-foreground">{item.outlet}</div>
-                <p className="mt-2 text-sm text-foreground">{item.headline}</p>
-                <p className="mt-2 text-xs text-muted-foreground">{item.date}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      <section className="mb-12">
+        <MarketingStatGrid
+          items={[
+            { value: '12', label: 'Logos & captures', hint: 'Vector + raster' },
+            { value: '6', label: 'Story angles', hint: 'Pre-briefed talking points' },
+            { value: '24h', label: 'Embargo support', hint: 'On request' },
+            { value: 'Global', label: 'Languages', hint: 'EN-first, localization roadmap' },
+          ]}
+        />
+      </section>
+
+      <div className="mb-12 grid gap-6 lg:grid-cols-2">
+        <MarketingFeatureCard
+          tone="amber"
+          title="Messaging guardrails"
+          description="We lead with trust, curation, and creator control—not engagement hacks or opaque algorithms."
+        />
+        <MarketingFeatureCard
+          tone="violet"
+          title="Executive bios"
+          description="Need a quote on the future of bookmarking? We can connect you with product or community leadership quickly."
+        />
       </div>
 
-      <Dialog open={Boolean(activeAsset)} onOpenChange={() => setActiveAssetId(null)}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{activeAsset?.title}</DialogTitle>
-          </DialogHeader>
-          {activeAsset?.previewUrl && (
-            <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border bg-muted">
-              <Image
-                src={activeAsset.previewUrl}
-                alt={activeAsset.title}
-                fill
-                className="object-cover"
-              />
-            </div>
-          )}
-          <p className="text-sm text-muted-foreground">{activeAsset?.description}</p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setActiveAssetId(null)}>
-              Close
-            </Button>
-            <Button
-              onClick={() =>
-                toast({
-                  title: 'Download started',
-                  description: `${activeAsset?.title} is downloading.`,
-                })
-              }
-            >
-              Download {activeAsset?.fileType}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </PageShell>
+      <PressKitClient assets={mockPressAssets} coverage={mockPressCoverage} />
+    </MarketingPublicShell>
   )
 }
