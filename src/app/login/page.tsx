@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Bookmark, Building2, FileText, Image as ImageIcon, Sparkles } from 'lucide-react'
+import { LoginForm } from '@/components/auth/login-form'
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
 import { getFactoryState } from '@/design/factory/get-factory-state'
@@ -43,6 +44,18 @@ function getLoginConfig(kind: ReturnType<typeof getProductKind>) {
       body: 'Open your visual feed, creator profile, and publishing tools without dropping into a generic admin shell.',
     }
   }
+  if (kind === 'curation') {
+    return {
+      shell: 'bg-[linear-gradient(180deg,#ffffff_0%,#fafafa_100%)] text-neutral-950',
+      panel: 'border border-neutral-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.06)]',
+      side: 'border border-amber-100 bg-[#fffbeb]',
+      muted: 'text-neutral-600',
+      action: 'bg-neutral-950 text-white hover:bg-neutral-800',
+      icon: Bookmark,
+      title: 'Welcome back to your hub',
+      body: 'Log in to manage your public profile, organized bookmarks, and collections. Your session is saved on this device after you sign in.',
+    }
+  }
   return {
     shell: 'bg-[#f7f1ea] text-[#261811]',
     panel: 'border border-[#ddcdbd] bg-[#fffaf4]',
@@ -82,14 +95,12 @@ export default function LoginPage() {
           </div>
 
           <div className={`rounded-[2rem] p-8 ${config.panel}`}>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Welcome back</p>
-            <form className="mt-6 grid gap-4">
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Email address" />
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Password" type="password" />
-              <button type="submit" className={`inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-semibold ${config.action}`}>Sign in</button>
-            </form>
-            <div className={`mt-6 flex items-center justify-between text-sm ${config.muted}`}>
-              <Link href="/forgot-password" className="hover:underline">Forgot password?</Link>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-neutral-500">Welcome back</p>
+            <LoginForm />
+            <div className={`mt-6 flex flex-wrap items-center justify-between gap-3 text-sm ${config.muted}`}>
+              <Link href="/forgot-password" className="hover:underline">
+                Forgot password?
+              </Link>
               <Link href="/register" className="inline-flex items-center gap-2 font-semibold hover:underline">
                 <Sparkles className="h-4 w-4" />
                 Create account

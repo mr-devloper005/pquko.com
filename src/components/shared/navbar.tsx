@@ -4,7 +4,25 @@ import { useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Search, Menu, X, User, FileText, Building2, LayoutGrid, Tag, Image as ImageIcon, ChevronRight, Sparkles, MapPin, Plus } from 'lucide-react'
+import {
+  Search,
+  Menu,
+  X,
+  User,
+  FileText,
+  Building2,
+  LayoutGrid,
+  Tag,
+  Image as ImageIcon,
+  ChevronRight,
+  Sparkles,
+  MapPin,
+  Plus,
+  Bookmark,
+  Compass,
+  Info,
+  CircleDollarSign,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/lib/auth-context'
 import { SITE_CONFIG, type TaskKey } from '@/lib/site-config'
@@ -41,12 +59,12 @@ const variantClasses = {
     mobile: 'border-t border-slate-200/70 bg-white/95',
   },
   'editorial-bar': {
-    shell: 'border-b border-[#d7c4b3] bg-[#fff7ee]/90 text-[#2f1d16] backdrop-blur-xl',
-    logo: 'rounded-full border border-[#dbc6b6] bg-white shadow-sm',
-    active: 'bg-[#2f1d16] text-[#fff4e4]',
-    idle: 'text-[#72594a] hover:bg-[#f2e5d4] hover:text-[#2f1d16]',
-    cta: 'rounded-full bg-[#2f1d16] text-[#fff4e4] hover:bg-[#452920]',
-    mobile: 'border-t border-[#dbc6b6] bg-[#fff7ee]',
+    shell: 'border-b border-neutral-200/90 bg-white/95 text-neutral-950 backdrop-blur-xl',
+    logo: 'rounded-2xl border border-neutral-200 bg-white shadow-sm',
+    active: 'bg-neutral-950 text-white',
+    idle: 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-950',
+    cta: 'rounded-full bg-neutral-950 text-white hover:bg-neutral-800',
+    mobile: 'border-t border-neutral-200 bg-white',
   },
   'floating-bar': {
     shell: 'border-b border-transparent bg-transparent text-white',
@@ -96,16 +114,41 @@ export function Navbar() {
   const pathname = usePathname()
   const { isAuthenticated } = useAuth()
   const { recipe } = getFactoryState()
-
-  const navigation = useMemo(() => SITE_CONFIG.tasks.filter((task) => task.enabled && task.key !== 'profile'), [])
-  const primaryNavigation = navigation.slice(0, 5)
-  const mobileNavigation = navigation.map((task) => ({
-    name: task.label,
-    href: task.route,
-    icon: taskIcons[task.key] || LayoutGrid,
-  }))
-  const primaryTask = SITE_CONFIG.tasks.find((task) => task.key === recipe.primaryTask && task.enabled) || primaryNavigation[0]
   const isDirectoryProduct = recipe.homeLayout === 'listing-home' || recipe.homeLayout === 'classified-home'
+
+  const taskNavigation = useMemo(
+    () =>
+      SITE_CONFIG.tasks
+        .filter((task) => task.enabled && task.key !== 'profile')
+        .map((task) => ({
+          key: task.key,
+          label: task.label,
+          href: task.route,
+          icon: taskIcons[task.key] || LayoutGrid,
+        })),
+    [],
+  )
+
+  const marketingNavigation = useMemo(
+    () => [
+      { key: 'profiles', label: 'Profiles', href: '/profile', icon: User },
+      { key: 'bookmarks', label: 'Bookmarks', href: '/sbm', icon: Bookmark },
+      { key: 'explore', label: 'Explore', href: '/search', icon: Compass },
+      { key: 'about', label: 'About', href: '/about', icon: Info },
+      { key: 'pricing', label: 'Pricing', href: '/contact', icon: CircleDollarSign },
+    ],
+    [],
+  )
+
+  const navLinks = isDirectoryProduct ? taskNavigation : marketingNavigation
+  const primaryNavigation = navLinks.slice(0, 5)
+  const mobileNavigation = navLinks.map((item) => ({
+    name: item.label,
+    href: item.href,
+    icon: item.icon,
+  }))
+  const primaryTask =
+    SITE_CONFIG.tasks.find((task) => task.key === recipe.primaryTask && task.enabled) || SITE_CONFIG.tasks.find((task) => task.enabled) || null
 
   if (isDirectoryProduct) {
     const palette = directoryPalette[(recipe.brandPack === 'market-utility' ? 'market-utility' : 'directory-clean') as keyof typeof directoryPalette]
@@ -115,8 +158,14 @@ export function Navbar() {
         <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-4">
             <Link href="/" className="flex shrink-0 items-center gap-3">
-              <div className={cn('flex h-12 w-12 items-center justify-center overflow-hidden p-1.5', palette.logo)}>
-                <img src="/favicon.png?v=20260401" alt={`${SITE_CONFIG.name} logo`} width="48" height="48" className="h-full w-full object-contain" />
+              <div className={cn('flex h-14 w-14 items-center justify-center overflow-hidden p-1', palette.logo)}>
+                <img
+                  src="/favicon.png?v=20260423"
+                  alt={`${SITE_CONFIG.name} logo`}
+                  width="56"
+                  height="56"
+                  className="h-full w-full origin-center scale-[1.35] object-contain"
+                />
               </div>
               <div className="min-w-0 hidden sm:block">
                 <span className="block truncate text-xl font-semibold">{SITE_CONFIG.name}</span>
@@ -125,11 +174,11 @@ export function Navbar() {
             </Link>
 
             <div className="hidden items-center gap-5 xl:flex">
-              {primaryNavigation.slice(0, 4).map((task) => {
-                const isActive = pathname.startsWith(task.route)
+              {primaryNavigation.slice(0, 4).map((link) => {
+                const isActive = pathname.startsWith(link.href)
                 return (
-                  <Link key={task.key} href={task.route} className={cn('text-sm font-semibold transition-colors', isActive ? 'text-foreground' : palette.nav)}>
-                    {task.label}
+                  <Link key={link.key} href={link.href} className={cn('text-sm font-semibold transition-colors', isActive ? 'text-foreground' : palette.nav)}>
+                    {link.label}
                   </Link>
                 )
               })}
@@ -160,7 +209,7 @@ export function Navbar() {
             ) : (
               <div className="hidden items-center gap-2 md:flex">
                 <Button variant="ghost" size="sm" asChild className="rounded-full px-4">
-                  <Link href="/login">Sign In</Link>
+                  <Link href="/login">Log In</Link>
                 </Button>
                 <Button size="sm" asChild className={cn('rounded-full', palette.cta)}>
                   <Link href="/register">
@@ -210,8 +259,14 @@ export function Navbar() {
       <nav className={cn('mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8', isFloating ? 'h-24 pt-4' : 'h-20')}>
         <div className="flex min-w-0 flex-1 items-center gap-4 lg:gap-7">
           <Link href="/" className="flex shrink-0 items-center gap-3 whitespace-nowrap pr-2">
-            <div className={cn('flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden p-1.5', style.logo)}>
-              <img src="/favicon.png?v=20260401" alt={`${SITE_CONFIG.name} logo`} width="48" height="48" className="h-full w-full object-contain" />
+            <div className={cn('flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden p-1', style.logo)}>
+              <img
+                src="/favicon.png?v=20260423"
+                alt={`${SITE_CONFIG.name} logo`}
+                width="56"
+                height="56"
+                className="h-full w-full origin-center scale-[1.35] object-contain"
+              />
             </div>
             <div className="min-w-0 hidden sm:block">
               <span className="block truncate text-xl font-semibold">{SITE_CONFIG.name}</span>
@@ -220,51 +275,56 @@ export function Navbar() {
           </Link>
 
           {isEditorial ? (
-            <div className="hidden min-w-0 flex-1 items-center gap-4 xl:flex">
-              <div className="h-px flex-1 bg-[#d8c8bb]" />
-              {primaryNavigation.map((task) => {
-                const isActive = pathname.startsWith(task.route)
+            <div className="hidden min-w-0 flex-1 items-center justify-center gap-1 xl:flex">
+              {primaryNavigation.map((link) => {
+                const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`)
                 return (
-                  <Link key={task.key} href={task.route} className={cn('text-sm font-semibold uppercase tracking-[0.18em] transition-colors', isActive ? 'text-[#2f1d16]' : 'text-[#7b6254] hover:text-[#2f1d16]')}>
-                    {task.label}
+                  <Link
+                    key={link.key}
+                    href={link.href}
+                    className={cn(
+                      'flex items-center gap-1 rounded-full px-3 py-2 text-sm font-semibold transition-colors',
+                      isActive ? 'text-neutral-950' : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-950',
+                    )}
+                  >
+                    {link.label}
                   </Link>
                 )
               })}
-              <div className="h-px flex-1 bg-[#d8c8bb]" />
             </div>
           ) : isFloating ? (
             <div className="hidden min-w-0 flex-1 items-center gap-2 xl:flex">
-              {primaryNavigation.map((task) => {
-                const Icon = taskIcons[task.key] || LayoutGrid
-                const isActive = pathname.startsWith(task.route)
+              {primaryNavigation.map((link) => {
+                const Icon = link.icon || LayoutGrid
+                const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`)
                 return (
-                  <Link key={task.key} href={task.route} className={cn('flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors', isActive ? style.active : style.idle)}>
+                  <Link key={link.key} href={link.href} className={cn('flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors', isActive ? style.active : style.idle)}>
                     <Icon className="h-4 w-4" />
-                    <span>{task.label}</span>
+                    <span>{link.label}</span>
                   </Link>
                 )
               })}
             </div>
           ) : isUtility ? (
             <div className="hidden min-w-0 flex-1 items-center gap-2 xl:flex">
-              {primaryNavigation.map((task) => {
-                const isActive = pathname.startsWith(task.route)
+              {primaryNavigation.map((link) => {
+                const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`)
                 return (
-                  <Link key={task.key} href={task.route} className={cn('rounded-lg px-3 py-2 text-sm font-semibold transition-colors', isActive ? style.active : style.idle)}>
-                    {task.label}
+                  <Link key={link.key} href={link.href} className={cn('rounded-lg px-3 py-2 text-sm font-semibold transition-colors', isActive ? style.active : style.idle)}>
+                    {link.label}
                   </Link>
                 )
               })}
             </div>
           ) : (
             <div className="hidden min-w-0 flex-1 items-center gap-1 overflow-hidden xl:flex">
-              {primaryNavigation.map((task) => {
-                const Icon = taskIcons[task.key] || LayoutGrid
-                const isActive = pathname.startsWith(task.route)
+              {primaryNavigation.map((link) => {
+                const Icon = link.icon || LayoutGrid
+                const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`)
                 return (
-                  <Link key={task.key} href={task.route} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors whitespace-nowrap', isActive ? style.active : style.idle)}>
+                  <Link key={link.key} href={link.href} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors whitespace-nowrap', isActive ? style.active : style.idle)}>
                     <Icon className="h-4 w-4" />
-                    <span>{task.label}</span>
+                    <span>{link.label}</span>
                   </Link>
                 )
               })}
@@ -291,11 +351,11 @@ export function Navbar() {
             <NavbarAuthControls />
           ) : (
             <div className="hidden items-center gap-2 md:flex">
-              <Button variant="ghost" size="sm" asChild className="rounded-full px-4">
-                <Link href="/login">Sign In</Link>
-              </Button>
-              <Button size="sm" asChild className={style.cta}>
-                <Link href="/register">{isEditorial ? 'Subscribe' : isUtility ? 'Post Now' : 'Get Started'}</Link>
+              <Button variant="ghost" size="sm" asChild className="rounded-full px-4 text-neutral-700 hover:text-neutral-950">
+                  <Link href="/login">Log In</Link>
+                </Button>
+                <Button size="sm" asChild className={style.cta}>
+                <Link href="/register">{isEditorial ? 'Join Now' : isUtility ? 'Post Now' : 'Get Started'}</Link>
               </Button>
             </div>
           )}

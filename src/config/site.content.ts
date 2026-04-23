@@ -2,24 +2,25 @@ import type { TaskKey } from '@/lib/site-config'
 
 export const siteContent = {
   navbar: {
-    tagline: 'SBM , Profile platform',
+    tagline: 'Profiles & social bookmarking',
   },
   footer: {
-    tagline: 'SBM , Profile platform',
+    tagline: 'Profiles & social bookmarking',
   },
   hero: {
-    badge: 'Latest stories and visuals',
-    title: ['A thoughtful home for', 'stories, visuals, and discovery.'],
-    description: 'A SBM , Profile site for Pquko, built for clean discovery and structured publishing.',
+    badge: 'Curated identity',
+    title: ['Your hub for', 'profiles and saved links.'],
+    description:
+      'Build a clear public identity, organize bookmarks into collections, and share shelves people can follow—without the clutter of generic feeds.',
     primaryCta: {
-      label: 'Explore resources',
+      label: 'Browse bookmarks',
       href: '/sbm',
     },
     secondaryCta: {
       label: 'View profiles',
       href: '/profile',
     },
-    searchPlaceholder: 'Search stories, visuals, listings, and more',
+    searchPlaceholder: 'Search people, collections, and saved links',
     focusLabel: 'Focus',
     featureCardBadge: 'latest cover rotation',
     featureCardTitle: 'Latest posts shape the visual identity of the homepage.',
@@ -28,40 +29,39 @@ export const siteContent = {
   },
   home: {
     metadata: {
-      title: 'Stories, visuals, and discoverable content',
-      description: 'A SBM , Profile site for Pquko, built for clean discovery and structured publishing.',
-      openGraphTitle: 'Stories, visuals, and discoverable content',
-      openGraphDescription:
-        'Discover articles, visual posts, and connected content through a calmer reading-first experience.',
-      keywords: ['story platform', 'article site', 'visual content', 'content discovery'],
+      title: 'Profiles and social bookmarking',
+      description: 'Public profiles, organized bookmarks, and shareable collections in one calm surface.',
+      openGraphTitle: 'Profiles and social bookmarking',
+      openGraphDescription: 'Curate links, shape your identity, and share collections without noisy feeds.',
+      keywords: ['profiles', 'social bookmarking', 'bookmark collections', 'curated links', 'public profile'],
     },
     introBadge: 'About the platform',
-    introTitle: 'Built for reading, browsing, and connecting different kinds of content.',
+    introTitle: 'Identity and curation, designed to stay readable.',
     introParagraphs: [
-      'This site brings together article-style reading, visual browsing, and structured discovery so visitors can move naturally between different content types.',
-      'Instead of separating stories, visuals, and supporting resources into disconnected surfaces, the platform keeps them connected in one place with consistent navigation and easier exploration.',
-      'Whether someone starts with a story, an image-led post, a listing, or a resource page, they can keep discovering related content without friction.',
+      'This site is built around two ideas: a profile that explains who you are, and bookmark collections that keep your best links organized with context.',
+      'Instead of mixing unrelated formats, the experience stays focused on saving, grouping, and sharing resources you actually return to.',
+      'Whether someone discovers you through a collection or your profile, they get a consistent, low-noise path to follow your work.',
     ],
     sideBadge: 'At a glance',
     sidePoints: [
-      'Reading-first homepage with stronger emphasis on stories and imagery.',
-      'Connected sections for articles, visuals, listings, and supporting resources.',
-      'Cleaner browsing rhythm designed to make exploration feel easier.',
-      'Lightweight interactions that keep the experience fast and readable.',
+      'Rounded, spacious layouts with strong typography and gentle pastel accents.',
+      'Collections and profiles that feel closer to a personal site than a dashboard.',
+      'Sharing flows that keep source links and short notes attached.',
+      'Fast interactions that stay out of the way while you curate.',
     ],
     primaryLink: {
-      label: 'Browse articles',
-      href: '/articles',
+      label: 'Open bookmarks',
+      href: '/sbm',
     },
     secondaryLink: {
-      label: 'See visuals',
-      href: '/images',
+      label: 'Meet curators',
+      href: '/profile',
     },
   },
   cta: {
     badge: 'Start exploring',
-    title: 'Explore articles, visuals, and resources through one connected experience.',
-    description: 'A SBM , Profile site for Pquko, built for clean discovery and structured publishing.',
+    title: 'Save links, polish your profile, and share collections from one place.',
+    description: 'A calmer home for identity and social bookmarking—built for return visits, not endless scrolling.',
     primaryCta: {
       label: 'Explore resources',
       href: '/sbm',

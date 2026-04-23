@@ -22,7 +22,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    const storedUser = loadFromStorage<User | null>(storageKeys.user, null)
+    let storedUser = loadFromStorage<User | null>(storageKeys.user, null)
+    if (!storedUser && typeof window !== 'undefined') {
+      const legacy = window.localStorage.getItem('nexus-user')
+      if (legacy) {
+        try {
+          storedUser = JSON.parse(legacy) as User
+          saveToStorage(storageKeys.user, storedUser)
+          window.localStorage.removeItem('nexus-user')
+        } catch {
+          window.localStorage.removeItem('nexus-user')
+        }
+      }
+    }
     if (storedUser) {
       setUser(storedUser)
     }
