@@ -1,7 +1,7 @@
-﻿'use client'
+'use client'
 
 export const storageKeys = {
-  user: 'nexus-user',
+  user: 'user',
   bookmarks: 'nexus-bookmarks',
   bookmarkCollections: 'nexus-bookmark-collections',
   articles: 'nexus-articles',

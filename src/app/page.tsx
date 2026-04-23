@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, Bookmark, Building2, Compass, FileText, Globe2, Image as ImageIcon, LayoutGrid, MapPin, ShieldCheck, Tag, User } from 'lucide-react'
+import { CurationMarketingHome } from '@/components/home/curation-marketing-home'
 import { ContentImage } from '@/components/shared/content-image'
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
@@ -122,19 +123,6 @@ function getVisualTone() {
     badge: 'bg-[#8df0c8] text-[#07111f]',
     action: 'bg-[#8df0c8] text-[#07111f] hover:bg-[#77dfb8]',
     actionAlt: 'border border-white/10 bg-white/6 text-white hover:bg-white/10',
-  }
-}
-
-function getCurationTone() {
-  return {
-    shell: 'bg-[#f7f1ea] text-[#261811]',
-    panel: 'border border-[#ddcdbd] bg-[#fffaf4] shadow-[0_24px_60px_rgba(91,56,37,0.08)]',
-    soft: 'border border-[#e8dbce] bg-[#f3e8db]',
-    muted: 'text-[#71574a]',
-    title: 'text-[#261811]',
-    badge: 'bg-[#5b2b3b] text-[#fff0f5]',
-    action: 'bg-[#5b2b3b] text-[#fff0f5] hover:bg-[#74364b]',
-    actionAlt: 'border border-[#ddcdbd] bg-transparent text-[#261811] hover:bg-[#efe3d6]',
   }
 }
 
@@ -409,67 +397,8 @@ function VisualHome({ primaryTask, imagePosts, profilePosts, articlePosts }: { p
   )
 }
 
-function CurationHome({ primaryTask, bookmarkPosts, profilePosts, articlePosts }: { primaryTask?: EnabledTask; bookmarkPosts: SitePost[]; profilePosts: SitePost[]; articlePosts: SitePost[] }) {
-  const tone = getCurationTone()
-  const collections = bookmarkPosts.length ? bookmarkPosts.slice(0, 4) : articlePosts.slice(0, 4)
-  const people = profilePosts.slice(0, 3)
-
-  return (
-    <main className={tone.shell}>
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-18">
-        <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-start">
-          <div>
-            <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] ${tone.badge}`}>
-              <Bookmark className="h-3.5 w-3.5" />
-              Curated collections
-            </span>
-            <h1 className={`mt-6 max-w-4xl text-5xl font-semibold tracking-[-0.06em] sm:text-6xl ${tone.title}`}>
-              Save, organize, and revisit resources through shelves, boards, and curated collections.
-            </h1>
-            <p className={`mt-6 max-w-2xl text-base leading-8 ${tone.muted}`}>{SITE_CONFIG.description}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href={primaryTask?.route || '/sbm'} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.action}`}>
-                Open collections
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link href="/profile" className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.actionAlt}`}>
-                Explore curators
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {collections.map((post) => (
-              <Link key={post.id} href={getTaskHref(resolveTaskKey(post.task, 'sbm'), post.slug)} className={`rounded-[1.8rem] p-6 ${tone.panel}`}>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Collection</p>
-                <h3 className="mt-3 text-2xl font-semibold">{post.title}</h3>
-                <p className={`mt-3 text-sm leading-8 ${tone.muted}`}>{post.summary || 'A calmer bookmark surface with room for context and grouping.'}</p>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-12 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className={`rounded-[2rem] p-7 ${tone.panel}`}>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Why this feels different</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">More like saved boards and reading shelves than a generic post feed.</h2>
-            <p className={`mt-4 max-w-2xl text-sm leading-8 ${tone.muted}`}>The structure is calmer, the cards are less noisy, and the page encourages collecting and returning instead of forcing everything into a fast-scrolling list.</p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            {people.map((post) => (
-              <Link key={post.id} href={`/profile/${post.slug}`} className={`rounded-[1.8rem] p-5 ${tone.soft}`}>
-                <div className="relative h-32 overflow-hidden rounded-[1.2rem]">
-                  <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold">{post.title}</h3>
-                <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>Curator profile, saved resources, and collection notes.</p>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-    </main>
-  )
+function CurationHome({ primaryTask, bookmarkPosts, profilePosts }: { primaryTask?: EnabledTask; bookmarkPosts: SitePost[]; profilePosts: SitePost[] }) {
+  return <CurationMarketingHome primaryTask={primaryTask} bookmarkPosts={bookmarkPosts} profilePosts={profilePosts} />
 }
 
 export default async function HomePage() {
@@ -541,7 +470,7 @@ export default async function HomePage() {
         <VisualHome primaryTask={primaryTask} imagePosts={imagePosts} profilePosts={profilePosts} articlePosts={articlePosts} />
       ) : null}
       {productKind === 'curation' ? (
-        <CurationHome primaryTask={primaryTask} bookmarkPosts={bookmarkPosts} profilePosts={profilePosts} articlePosts={articlePosts} />
+        <CurationHome primaryTask={primaryTask} bookmarkPosts={bookmarkPosts} profilePosts={profilePosts} />
       ) : null}
       <Footer />
     </div>

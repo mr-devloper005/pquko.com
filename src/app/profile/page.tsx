@@ -12,5 +12,5 @@ export const generateMetadata = () =>
   });
 
 export default function ProfilePage({ searchParams }: { searchParams?: { category?: string } }) {
-  return <TaskListPage task="profile" category={searchParams?.category} />;
+  return <TaskListPage task="profile" category={searchParams?.category} appearance="marketing" />;
 }

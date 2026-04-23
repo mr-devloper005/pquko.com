@@ -1,116 +1,156 @@
-import { PageShell } from "@/components/shared/page-shell";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
-import { fetchSiteFeed } from "@/lib/site-connector";
-import { buildPostUrl, getPostTaskKey } from "@/lib/task-data";
-import { getMockPostsForTask } from "@/lib/mock-posts";
-import { SITE_CONFIG } from "@/lib/site-config";
-import { TaskPostCard } from "@/components/shared/task-post-card";
+import Link from 'next/link'
+import { Search } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { fetchSiteFeed } from '@/lib/site-connector'
+import { buildPostUrl, getPostTaskKey } from '@/lib/task-data'
+import { getMockPostsForTask } from '@/lib/mock-posts'
+import { SITE_CONFIG } from '@/lib/site-config'
+import { TaskPostCard } from '@/components/shared/task-post-card'
+import { MarketingFeatureCard, MarketingPublicShell, MarketingStatGrid } from '@/components/marketing/marketing-public-shell'
 
-export const revalidate = 3;
+export const revalidate = 3
 
-const matchText = (value: string, query: string) =>
-  value.toLowerCase().includes(query);
+const matchText = (value: string, query: string) => value.toLowerCase().includes(query)
 
-const stripHtml = (value: string) => value.replace(/<[^>]*>/g, " ");
+const stripHtml = (value: string) => value.replace(/<[^>]*>/g, ' ')
 
 const compactText = (value: unknown) => {
-  if (typeof value !== "string") return "";
-  return stripHtml(value).replace(/\s+/g, " ").trim().toLowerCase();
-};
+  if (typeof value !== 'string') return ''
+  return stripHtml(value).replace(/\s+/g, ' ').trim().toLowerCase()
+}
 
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ q?: string; category?: string; task?: string; master?: string }>;
+  searchParams?: Promise<{ q?: string; category?: string; task?: string; master?: string }>
 }) {
-  const resolved = (await searchParams) || {};
-  const query = (resolved.q || "").trim();
-  const normalized = query.toLowerCase();
-  const category = (resolved.category || "").trim().toLowerCase();
-  const task = (resolved.task || "").trim().toLowerCase();
-  const useMaster = resolved.master !== "0";
+  const resolved = (await searchParams) || {}
+  const query = (resolved.q || '').trim()
+  const normalized = query.toLowerCase()
+  const category = (resolved.category || '').trim().toLowerCase()
+  const task = (resolved.task || '').trim().toLowerCase()
+  const useMaster = resolved.master !== '0'
   const feed = await fetchSiteFeed(
     useMaster ? 1000 : 300,
-    useMaster
-      ? { fresh: true, category: category || undefined, task: task || undefined }
-      : undefined
-  );
-  const posts =
-    feed?.posts?.length
-      ? feed.posts
-      : useMaster
-        ? []
-        : SITE_CONFIG.tasks.flatMap((task) => getMockPostsForTask(task.key));
+    useMaster ? { fresh: true, category: category || undefined, task: task || undefined } : undefined,
+  )
+  const posts = feed?.posts?.length
+    ? feed.posts
+    : useMaster
+      ? []
+      : SITE_CONFIG.tasks.flatMap((t) => getMockPostsForTask(t.key))
 
   const filtered = posts.filter((post) => {
-    const content = post.content && typeof post.content === "object" ? post.content : {};
-    const typeText = compactText((content as any).type);
-    if (typeText === "comment") return false;
-    const description = compactText((content as any).description);
-    const body = compactText((content as any).body);
-    const excerpt = compactText((content as any).excerpt);
-    const categoryText = compactText((content as any).category);
-    const tags = Array.isArray(post.tags) ? post.tags.join(" ") : "";
-    const tagsText = compactText(tags);
-    const derivedCategory = categoryText || tagsText;
-    if (category && !derivedCategory.includes(category)) return false;
-    if (task && typeText && typeText !== task) return false;
-    if (!normalized.length) return true;
+    const content = post.content && typeof post.content === 'object' ? post.content : {}
+    const typeText = compactText((content as Record<string, unknown>).type)
+    if (typeText === 'comment') return false
+    const description = compactText((content as Record<string, unknown>).description)
+    const body = compactText((content as Record<string, unknown>).body)
+    const excerpt = compactText((content as Record<string, unknown>).excerpt)
+    const categoryText = compactText((content as Record<string, unknown>).category)
+    const tags = Array.isArray(post.tags) ? post.tags.join(' ') : ''
+    const tagsText = compactText(tags)
+    const derivedCategory = categoryText || tagsText
+    if (category && !derivedCategory.includes(category)) return false
+    if (task && typeText && typeText !== task) return false
+    if (!normalized.length) return true
     return (
-      matchText(compactText(post.title || ""), normalized) ||
-      matchText(compactText(post.summary || ""), normalized) ||
+      matchText(compactText(post.title || ''), normalized) ||
+      matchText(compactText(post.summary || ''), normalized) ||
       matchText(description, normalized) ||
       matchText(body, normalized) ||
       matchText(excerpt, normalized) ||
       matchText(tagsText, normalized)
-    );
-  });
+    )
+  })
 
-  const results = normalized.length > 0 ? filtered : filtered.slice(0, 24);
+  const results = normalized.length > 0 ? filtered : filtered.slice(0, 24)
+
+  const searchForm = (
+    <div className="w-full max-w-md rounded-[1.5rem] border border-neutral-200 bg-white p-6 shadow-sm">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Search</p>
+      <form action="/search" className="mt-4 space-y-3">
+        <input type="hidden" name="master" value="1" />
+        {category ? <input type="hidden" name="category" value={category} /> : null}
+        {task ? <input type="hidden" name="task" value={task} /> : null}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Input name="q" defaultValue={query} placeholder="Profiles, collections, links…" className="h-12 rounded-2xl border-neutral-200 pl-10 text-neutral-950" />
+        </div>
+        <Button type="submit" className="h-11 w-full rounded-full bg-neutral-950 text-white hover:bg-neutral-800">
+          Search
+        </Button>
+      </form>
+      <p className="mt-4 text-xs text-neutral-500">Tip: start broad, then filter by category from each task page.</p>
+    </div>
+  )
 
   return (
-    <PageShell
-      title="Search"
+    <MarketingPublicShell
+      eyebrow="Explore"
+      title="Search the community"
       description={
         query
-          ? `Results for "${query}"`
-          : "Browse the latest posts across every task."
+          ? `Showing matches for “${query}” across profiles, bookmarks, and more.`
+          : 'Find people, public collections, and saved resources in one place—without switching tools.'
       }
-      actions={
-        <form action="/search" className="flex w-full gap-2 sm:w-auto">
-          <input type="hidden" name="master" value="1" />
-          {category ? <input type="hidden" name="category" value={category} /> : null}
-          {task ? <input type="hidden" name="task" value={task} /> : null}
-          <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              name="q"
-              defaultValue={query}
-              placeholder="Search across tasks..."
-              className="h-11 pl-9"
-            />
-          </div>
-          <Button type="submit" className="h-11">
-            Search
-          </Button>
-        </form>
-      }
+      heroAside={searchForm}
     >
+      <div className="mb-12">
+        <MarketingStatGrid
+          items={[
+            { value: String(results.length), label: 'Results in view', hint: query ? 'For your current query' : 'Latest slice of the index' },
+            { value: '2', label: 'Core formats', hint: 'Profiles & bookmark collections' },
+            { value: '< 200ms', label: 'Typical feel', hint: 'Lightweight cards and caching' },
+            { value: '24/7', label: 'Self-serve discovery', hint: 'No gatekeeping on public boards' },
+          ]}
+        />
+      </div>
+
+      <div className="mb-10 grid gap-6 lg:grid-cols-2">
+        <MarketingFeatureCard
+          tone="amber"
+          title="Prefer browsing shelves?"
+          description="Jump straight into curated bookmarks with context and short notes attached to every link."
+        >
+          <Button asChild className="rounded-full bg-neutral-950 text-white hover:bg-neutral-800">
+            <Link href="/sbm">Open bookmarks</Link>
+          </Button>
+        </MarketingFeatureCard>
+        <MarketingFeatureCard
+          tone="violet"
+          title="Looking for a person?"
+          description="Profiles summarize roles, links, and featured collections so you know who you are following."
+        >
+          <Button asChild variant="outline" className="rounded-full border-neutral-300 bg-white">
+            <Link href="/profile">Browse profiles</Link>
+          </Button>
+        </MarketingFeatureCard>
+      </div>
+
       {results.length ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {results.map((post) => {
-            const task = getPostTaskKey(post);
-            const href = task ? buildPostUrl(task, post.slug) : `/posts/${post.slug}`;
-            return <TaskPostCard key={post.id} post={post} href={href} />;
+            const postTask = getPostTaskKey(post)
+            const href = postTask ? buildPostUrl(postTask, post.slug) : `/posts/${post.slug}`
+            return <TaskPostCard key={post.id} post={post} href={href} />
           })}
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">
-          No matching posts yet.
+        <div className="rounded-[1.5rem] border border-dashed border-neutral-200 bg-neutral-50 px-8 py-14 text-center text-neutral-600">
+          <p className="text-lg font-semibold text-neutral-900">No matches yet</p>
+          <p className="mt-2 text-sm">Try another phrase, or browse open collections first.</p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button asChild className="rounded-full bg-neutral-950 text-white hover:bg-neutral-800">
+              <Link href="/sbm">View bookmarks</Link>
+            </Button>
+            <Button asChild variant="outline" className="rounded-full border-neutral-300">
+              <Link href="/profile">View profiles</Link>
+            </Button>
+          </div>
         </div>
       )}
-    </PageShell>
-  );
+    </MarketingPublicShell>
+  )
 }

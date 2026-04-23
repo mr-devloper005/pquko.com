@@ -9,6 +9,9 @@ export function getProductKind(recipe: SiteFactoryRecipe): ProductKind {
   if (recipe.homeLayout === 'classified-home' || recipe.primaryTask === 'classified') return 'directory'
   if (recipe.homeLayout === 'listing-home' || recipe.primaryTask === 'listing') return 'directory'
   if (recipe.homeLayout === 'article-home') return 'editorial'
-  if (recipe.homeLayout === 'image-profile-home') return recipe.primaryTask === 'profile' ? 'visual' : 'visual'
+  if (recipe.homeLayout === 'image-profile-home') {
+    if (recipe.primaryTask === 'sbm') return 'curation'
+    return 'visual'
+  }
   return 'directory'
 }
