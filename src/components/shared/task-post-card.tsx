@@ -140,9 +140,11 @@ export function TaskPostCard({
               <Tag className="h-3.5 w-3.5" />
               {category}
             </span>
-            <span className="rounded-full bg-white/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-900">
-              {variant === 'classified' ? 'Open now' : 'Verified'}
-            </span>
+            {variant !== 'profile' && (
+              <span className="rounded-full bg-white/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-900">
+                {variant === 'classified' ? 'Open now' : 'Verified'}
+              </span>
+            )}
           </div>
         </div>
         <div className="flex flex-1 flex-col p-5">

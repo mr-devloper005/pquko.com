@@ -10,6 +10,8 @@ import { buildPostUrl } from "@/lib/task-data";
 import { buildPostMetadata, buildTaskMetadata } from "@/lib/seo";
 import { fetchTaskPostBySlug, fetchTaskPosts } from "@/lib/task-data";
 import { SITE_CONFIG } from "@/lib/site-config";
+import { Eye, Users } from "lucide-react";
+import { ProfileActionBar } from "./profile-action-bar";
 
 export const revalidate = 3;
 
@@ -109,83 +111,108 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="min-h-screen bg-background">
       <NavbarShell />
-      <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
         <SchemaJsonLd data={breadcrumbData} />
-        <section className="rounded-3xl border border-border/60 bg-white/90 p-8 shadow-sm md:p-12">
-          <div className="grid gap-8 md:grid-cols-[200px_1fr] md:items-start">
-            <div className="flex justify-center md:justify-start">
-              <div className="relative h-36 w-36 overflow-hidden rounded-full border border-border/70 bg-muted">
-                {logoUrl ? (
-                  <ContentImage src={logoUrl} alt={post.title} fill className="object-cover" sizes="144px" intrinsicWidth={144} intrinsicHeight={144} />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-3xl font-semibold text-muted-foreground">
-                    {post.title.slice(0, 1).toUpperCase()}
-                  </div>
-                )}
+        
+        {/* Hero Profile Card Section */}
+        <section className="relative overflow-hidden rounded-b-[2.5rem] bg-gradient-to-b from-muted/50 to-background pb-12 pt-8">
+          <div className="mx-auto max-w-3xl px-4">
+            {/* Avatar and Brand */}
+            <div className="flex flex-col items-center text-center">
+              {/* Avatar */}
+              <div className="relative">
+                <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-background bg-muted shadow-xl md:h-28 md:w-28">
+                  {logoUrl ? (
+                    <ContentImage 
+                      src={logoUrl} 
+                      alt={post.title} 
+                      fill 
+                      className="object-cover" 
+                      sizes="112px" 
+                      intrinsicWidth={112} 
+                      intrinsicHeight={112} 
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-primary text-4xl font-bold text-primary-foreground">
+                      {brandName.slice(0, 1).toUpperCase()}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground sm:text-4xl">{brandName}</h1>
-              {domain ? (
-                <p className="mt-1 text-sm font-medium text-muted-foreground">{domain}</p>
-              ) : null}
+              
+              {/* Brand Name */}
+              <p className="mt-4 text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                {brandName}
+              </p>
+              
+              {/* Main Title */}
+              <h1 className="mt-2 text-2xl font-extrabold uppercase leading-tight tracking-tight text-foreground sm:text-3xl md:text-4xl">
+                {post.title}
+              </h1>
+              
+              {/* Description */}
               <article
-                className="article-content prose prose-slate mt-6 max-w-2xl text-base leading-relaxed prose-p:my-4 prose-a:text-primary prose-a:underline prose-strong:font-semibold"
+                className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground"
                 dangerouslySetInnerHTML={{ __html: descriptionHtml }}
               />
-              {website ? (
-                <div className="mt-8">
-                  <Button asChild size="lg" className="px-7 text-base">
-                    <Link href={website} target="_blank" rel="noopener noreferrer">
-                      Visit Official Site
-                    </Link>
-                  </Button>
-                </div>
-              ) : null}
+              
+              {/* Stats */}
+              <div className="mt-5 flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                <Eye className="h-3.5 w-3.5" />
+                <span>10 Viewers</span>
+                <span className="mx-2">•</span>
+                <Users className="h-3.5 w-3.5" />
+                <span>1 Follower</span>
+              </div>
             </div>
           </div>
         </section>
 
-        {suggestedArticles.length ? (
-          <section className="mt-12">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-foreground">Suggested articles</h2>
-              <Link href="/articles" className="text-sm font-medium text-primary hover:underline">
-                View all
-              </Link>
-            </div>
-            <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {suggestedArticles.slice(0, 3).map((article) => (
-                <TaskPostCard
-                  key={article.id}
-                  post={article}
-                  href={buildPostUrl("article", article.slug)}
-                  compact
-                />
-              ))}
-            </div>
-            <nav className="mt-6 rounded-2xl border border-border bg-card/60 p-4">
-              <p className="text-sm font-semibold text-foreground">Related links</p>
-              <ul className="mt-2 space-y-2 text-sm">
-                {suggestedArticles.slice(0, 3).map((article) => (
-                  <li key={`related-${article.id}`}>
-                    <Link
-                      href={buildPostUrl("article", article.slug)}
-                      className="text-primary underline-offset-4 hover:underline"
-                    >
-                      {article.title}
-                    </Link>
-                  </li>
+        {/* Action Bar */}
+        <ProfileActionBar website={website} />
+
+        {/* Content Section */}
+        <div className="mx-auto max-w-6xl pt-8">
+          {suggestedArticles.length ? (
+            <section>
+              <div className="flex items-center justify-between border-b border-border pb-4">
+                <h2 className="text-lg font-semibold text-foreground">More to explore</h2>
+                <Link 
+                  href="/articles" 
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  View all articles
+                </Link>
+              </div>
+              <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {suggestedArticles.slice(0, 6).map((article) => (
+                  <TaskPostCard
+                    key={article.id}
+                    post={article}
+                    href={buildPostUrl("article", article.slug)}
+                    compact
+                  />
                 ))}
-                <li>
-                  <Link href="/profile" className="text-primary underline-offset-4 hover:underline">
-                    Browse all profiles
-                  </Link>
-                </li>
-              </ul>
-            </nav>
+              </div>
+            </section>
+          ) : null}
+          
+          {/* Browse More Profiles */}
+          <section className="mt-12">
+            <div className="flex items-center justify-center">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="rounded-full px-8"
+                asChild
+              >
+                <Link href="/profile">
+                  Browse all profiles
+                </Link>
+              </Button>
+            </div>
           </section>
-        ) : null}
+        </div>
       </main>
       <Footer />
     </div>
