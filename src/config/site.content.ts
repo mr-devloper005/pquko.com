@@ -2,25 +2,25 @@ import type { TaskKey } from '@/lib/site-config'
 
 export const siteContent = {
   navbar: {
-    tagline: 'Profiles & social bookmarking',
+    tagline: 'Discover & save what matters',
   },
   footer: {
-    tagline: 'Profiles & social bookmarking',
+    tagline: 'Discover & save what matters',
   },
   hero: {
-    badge: 'Curated identity',
-    title: ['Your hub for', 'profiles and saved links.'],
+    badge: 'Curated collection',
+    title: ['Your hub for', 'saved links and resources.'],
     description:
-      'Build a clear public identity, organize bookmarks into collections, and share shelves people can follow—without the clutter of generic feeds.',
+      'Organize bookmarks into collections, and share shelves people can follow—without the clutter of generic feeds.',
     primaryCta: {
       label: 'Browse bookmarks',
       href: '/sbm',
     },
     secondaryCta: {
-      label: 'View profiles',
-      href: '/profile',
+      label: 'Explore resources',
+      href: '/sbm',
     },
-    searchPlaceholder: 'Search people, collections, and saved links',
+    searchPlaceholder: 'Search collections and saved links',
     focusLabel: 'Focus',
     featureCardBadge: 'latest cover rotation',
     featureCardTitle: 'Latest posts shape the visual identity of the homepage.',
@@ -29,23 +29,23 @@ export const siteContent = {
   },
   home: {
     metadata: {
-      title: 'Profiles and social bookmarking',
-      description: 'Public profiles, organized bookmarks, and shareable collections in one calm surface.',
-      openGraphTitle: 'Profiles and social bookmarking',
-      openGraphDescription: 'Curate links, shape your identity, and share collections without noisy feeds.',
-      keywords: ['profiles', 'social bookmarking', 'bookmark collections', 'curated links', 'public profile'],
+      title: 'Social bookmarking and curated links',
+      description: 'Organized bookmarks and shareable collections in one calm surface.',
+      openGraphTitle: 'Social bookmarking and curated links',
+      openGraphDescription: 'Curate links and share collections without noisy feeds.',
+      keywords: ['social bookmarking', 'bookmark collections', 'curated links', 'link saving'],
     },
     introBadge: 'About the platform',
-    introTitle: 'Identity and curation, designed to stay readable.',
+    introTitle: 'Curation, designed to stay readable.',
     introParagraphs: [
-      'This site is built around two ideas: a profile that explains who you are, and bookmark collections that keep your best links organized with context.',
+      'This site is built around bookmark collections that keep your best links organized with context.',
       'Instead of mixing unrelated formats, the experience stays focused on saving, grouping, and sharing resources you actually return to.',
-      'Whether someone discovers you through a collection or your profile, they get a consistent, low-noise path to follow your work.',
+      'Discover collections and get a consistent, low-noise path to follow curated content.',
     ],
     sideBadge: 'At a glance',
     sidePoints: [
       'Rounded, spacious layouts with strong typography and gentle pastel accents.',
-      'Collections and profiles that feel closer to a personal site than a dashboard.',
+      'Collections that feel closer to a personal library than a dashboard.',
       'Sharing flows that keep source links and short notes attached.',
       'Fast interactions that stay out of the way while you curate.',
     ],
@@ -54,21 +54,21 @@ export const siteContent = {
       href: '/sbm',
     },
     secondaryLink: {
-      label: 'Meet curators',
-      href: '/profile',
+      label: 'Browse collections',
+      href: '/sbm',
     },
   },
   cta: {
     badge: 'Start exploring',
-    title: 'Save links, polish your profile, and share collections from one place.',
-    description: 'A calmer home for identity and social bookmarking—built for return visits, not endless scrolling.',
+    title: 'Save links and share collections from one place.',
+    description: 'A calmer home for social bookmarking—built for return visits, not endless scrolling.',
     primaryCta: {
       label: 'Explore resources',
       href: '/sbm',
     },
     secondaryCta: {
-      label: 'View profiles',
-      href: '/profile',
+      label: 'Browse collections',
+      href: '/sbm',
     },
   },
   taskSectionHeading: 'Latest {label}',

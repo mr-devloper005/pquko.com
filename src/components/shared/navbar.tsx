@@ -18,8 +18,6 @@ import {
   Sparkles,
   MapPin,
   Plus,
-  Bookmark,
-  Compass,
   Info,
   CircleDollarSign,
 } from 'lucide-react'
@@ -131,9 +129,6 @@ export function Navbar() {
 
   const marketingNavigation = useMemo(
     () => [
-      { key: 'profiles', label: 'Profiles', href: '/profile', icon: User },
-      { key: 'bookmarks', label: 'Bookmarks', href: '/sbm', icon: Bookmark },
-      { key: 'explore', label: 'Explore', href: '/search', icon: Compass },
       { key: 'about', label: 'About', href: '/about', icon: Info },
       { key: 'pricing', label: 'Pricing', href: '/contact', icon: CircleDollarSign },
     ],
