@@ -1,7 +1,9 @@
+"use client";
+
 import { ContentImage } from "@/components/shared/content-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MapPin, Globe, Phone, Tag, Mail } from "lucide-react";
+import { MapPin, Globe, Phone, Tag, Mail, Bookmark, Share2, Heart, ExternalLink, Calendar, User, Grid3x3, List, Copy, Check } from "lucide-react";
 import { NavbarShell } from "@/components/shared/navbar-shell";
 import { Footer } from "@/components/shared/footer";
 import { TaskPostCard } from "@/components/shared/task-post-card";
@@ -19,6 +21,7 @@ import { getFactoryState } from "@/design/factory/get-factory-state";
 import { getProductKind } from "@/design/factory/get-product-kind";
 import { DirectoryTaskDetailPage } from "@/design/products/directory/task-detail-page";
 import { TASK_DETAIL_PAGE_OVERRIDE_ENABLED, TaskDetailPageOverride } from "@/overrides/task-detail-page";
+import { useState, useEffect } from "react";
 
 type PostContent = {
   category?: string;
@@ -36,6 +39,12 @@ type PostContent = {
   images?: string[];
   latitude?: number | string;
   longitude?: number | string;
+  bookmarks?: Array<{
+    title: string;
+    url: string;
+    description?: string;
+    tags?: string[];
+  }>;
 };
 
 const isValidImageUrl = (value?: string | null) =>
@@ -123,23 +132,13 @@ const buildMapEmbedUrl = (
   return null;
 };
 
-export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: string }) {
-  if (TASK_DETAIL_PAGE_OVERRIDE_ENABLED) {
-    return await TaskDetailPageOverride({ task, slug });
-  }
-
-  const taskConfig = getTaskConfig(task);
-  let post: SitePost | null = null;
-  try {
-    post = await fetchTaskPostBySlug(task, slug);
-  } catch (error) {
-    console.warn("Failed to load post detail", error);
-  }
-
-  if (!post) {
-    notFound();
-  }
-
+// Client component wrapper for SBM detail page
+function TaskDetailPageClient({ task, slug, post, taskConfig }: { 
+  task: TaskKey; 
+  slug: string; 
+  post: SitePost; 
+  taskConfig: any;
+}) {
   const content = getContent(post);
   const isClassified = task === "classified";
   const isArticle = task === "article";
@@ -168,14 +167,6 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
   const mapEmbedUrl = buildMapEmbedUrl(content.latitude, content.longitude, location);
   const isBookmark = task === "sbm" || task === "social";
   const hideSidebar = isClassified || isArticle || task === "image" || isBookmark;
-  const related = (await fetchTaskPosts(task, 6))
-    .filter((item) => item.slug !== post.slug)
-    .filter((item) => {
-      if (!content.category) return true;
-      const itemContent = getContent(item);
-      return itemContent.category === content.category;
-    })
-    .slice(0, 3);
   const articleUrl = `${SITE_CONFIG.baseUrl.replace(/\/$/, "")}${taskConfig?.route || "/articles"}/${post.slug}`;
   const articleImage = absoluteUrl(images[0]) || absoluteUrl(SITE_CONFIG.defaultOgImage);
   const articleSchema = isArticle
@@ -224,28 +215,31 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
     ],
   };
   const schemaPayload = articleSchema ? [articleSchema, breadcrumbSchema] : breadcrumbSchema;
-  const { recipe } = getFactoryState();
-  const productKind = getProductKind(recipe);
 
-  if (productKind === "directory" && (task === "listing" || task === "classified" || task === "profile")) {
-    return (
-      <div className="min-h-screen bg-[#f8fbff]">
-        <NavbarShell />
-        <DirectoryTaskDetailPage
-          task={task}
-          taskLabel={taskConfig?.label || task}
-          taskRoute={taskConfig?.route || "/"}
-          post={post}
-          description={description}
-          category={category}
-          images={images}
-          mapEmbedUrl={mapEmbedUrl}
-          related={related}
-        />
-        <Footer />
-      </div>
-    );
-  }
+  
+  // Fetch related posts on client side
+  const [related, setRelated] = useState<SitePost[]>([]);
+  
+  useEffect(() => {
+    const fetchRelated = async () => {
+      try {
+        const relatedPosts = await fetchTaskPosts(task, 6);
+        const filtered = relatedPosts
+          .filter((item) => item.slug !== post.slug)
+          .filter((item) => {
+            if (!content.category) return true;
+            const itemContent = getContent(item);
+            return itemContent.category === content.category;
+          })
+          .slice(0, 3);
+        setRelated(filtered);
+      } catch (error) {
+        console.warn("Failed to fetch related posts", error);
+      }
+    };
+    
+    fetchRelated();
+  }, [task, post.slug, content.category]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -310,28 +304,51 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
 
             {!isArticle ? (
               <>
-                {!isBookmark ? (
+                {isBookmark ? (
+                  <div className="space-y-8">
+                    {/* Enhanced Header Section */}
+                    <div className="rounded-3xl bg-gradient-to-br from-neutral-50 to-neutral-100 p-8 border border-neutral-200">
+                      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-4">
+                            <Badge variant="secondary" className="inline-flex items-center gap-1">
+                              <Bookmark className="h-3.5 w-3.5" />
+                              {category}
+                            </Badge>
+                            <span className="text-sm text-muted-foreground">
+                              by {post.authorName || 'Anonymous'}
+                            </span>
+                          </div>
+                          <h1 className="text-4xl font-bold text-foreground mb-4">{post.title}</h1>
+                          <RichContent html={descriptionHtml} className="text-base leading-relaxed max-w-3xl" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
                   <div className={cn(isClassified ? "w-full" : "")}>
                     <TaskImageCarousel images={images} />
                   </div>
-                ) : null}
+                )}
 
-                <div className={cn(isClassified ? "mx-auto w-full max-w-4xl" : "mt-6")}>
-                  <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                    <Badge variant="secondary" className="inline-flex items-center gap-1">
-                      <Tag className="h-3.5 w-3.5" />
-                      {category}
-                    </Badge>
-                    {location && (
-                      <span className="inline-flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        {location}
-                      </span>
-                    )}
+                {!isBookmark && (
+                  <div className={cn(isClassified ? "mx-auto w-full max-w-4xl" : "mt-6")}>
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                      <Badge variant="secondary" className="inline-flex items-center gap-1">
+                        <Tag className="h-3.5 w-3.5" />
+                        {category}
+                      </Badge>
+                      {location && (
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          {location}
+                        </span>
+                      )}
+                    </div>
+                    <h1 className="mt-4 text-3xl font-semibold text-foreground">{post.title}</h1>
+                    <RichContent html={descriptionHtml} className="mt-3 max-w-3xl" />
                   </div>
-                  <h1 className="mt-4 text-3xl font-semibold text-foreground">{post.title}</h1>
-                  <RichContent html={descriptionHtml} className="mt-3 max-w-3xl" />
-                </div>
+                )}
               </>
             ) : null}
 
@@ -408,99 +425,192 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
 
           {!hideSidebar ? (
             <aside className="space-y-6">
-            <div className="rounded-2xl border border-border bg-card p-6">
-              <h2 className="text-lg font-semibold text-foreground">Listing details</h2>
-                <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-                  {content.website && (
-                    <div className="flex items-start gap-2">
-                      <Globe className="mt-0.5 h-4 w-4" />
-                      <a
-                        href={content.website}
-                        className="break-all text-foreground hover:underline"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {content.website}
-                      </a>
+              {isBookmark ? (
+                <>
+                  {/* Collection Info Card */}
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Collection Info</h2>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center">
+                          <User className="h-5 w-5 text-neutral-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-foreground">{post.authorName || 'Anonymous'}</div>
+                          <div className="text-sm text-muted-foreground">Collection Creator</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center">
+                          <Calendar className="h-5 w-5 text-neutral-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-foreground">
+                            {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { 
+                              year: 'numeric', 
+                              month: 'short', 
+                              day: 'numeric' 
+                            }) : 'No date'}
+                          </div>
+                          <div className="text-sm text-muted-foreground">Created</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center">
+                          <Bookmark className="h-5 w-5 text-neutral-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-foreground">{content.bookmarks?.length || 0}</div>
+                          <div className="text-sm text-muted-foreground">Total Bookmarks</div>
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  {content.phone && (
-                    <div className="flex items-start gap-2">
-                      <Phone className="mt-0.5 h-4 w-4" />
-                      <span>{content.phone}</span>
-                    </div>
-                  )}
-                  {content.email && (
-                    <div className="flex items-start gap-2">
-                      <Mail className="mt-0.5 h-4 w-4" />
-                      <a
-                        href={`mailto:${content.email}`}
-                        className="break-all text-foreground hover:underline"
-                      >
-                        {content.email}
-                      </a>
-                    </div>
-                  )}
-                  {location && (
-                    <div className="flex items-start gap-2">
-                      <MapPin className="mt-0.5 h-4 w-4" />
-                      <span>{location}</span>
-                    </div>
-                  )}
-                </div>
-              {content.website ? (
-                <Button className="mt-5 w-full" asChild>
-                  <a href={content.website} target="_blank" rel="noreferrer">
-                    Visit Website
-                  </a>
-                </Button>
-              ) : null}
-            </div>
+                  </div>
 
-            {mapEmbedUrl ? (
-              <div className="rounded-2xl border border-border bg-card p-4">
-                <p className="text-sm font-semibold text-foreground">Location map</p>
-                <div className="mt-4 overflow-hidden rounded-xl border border-border">
-                  <iframe
-                    title="Business location map"
-                    src={mapEmbedUrl}
-                    className="h-56 w-full"
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-            ) : null}
+                  {/* Tags Card */}
+                  {postTags.length > 0 && (
+                    <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+                      <h2 className="text-lg font-semibold text-foreground mb-4">Tags</h2>
+                      <div className="flex flex-wrap gap-2">
+                        {postTags.map((tag) => (
+                          <Badge key={tag} variant="secondary" className="text-sm">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-          </aside>
+                                  </>
+              ) : (
+                <>
+                  {/* Original sidebar for non-bookmark content */}
+                  <div className="rounded-2xl border border-border bg-card p-6">
+                    <h2 className="text-lg font-semibold text-foreground">Listing details</h2>
+                      <div className="mt-4 space-y-3 text-sm text-muted-foreground">
+                        {content.website && (
+                          <div className="flex items-start gap-2">
+                            <Globe className="mt-0.5 h-4 w-4" />
+                            <a
+                              href={content.website}
+                              className="break-all text-foreground hover:underline"
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {content.website}
+                            </a>
+                          </div>
+                        )}
+                        {content.phone && (
+                          <div className="flex items-start gap-2">
+                            <Phone className="mt-0.5 h-4 w-4" />
+                            <span>{content.phone}</span>
+                          </div>
+                        )}
+                        {content.email && (
+                          <div className="flex items-start gap-2">
+                            <Mail className="mt-0.5 h-4 w-4" />
+                            <a
+                              href={`mailto:${content.email}`}
+                              className="break-all text-foreground hover:underline"
+                            >
+                              {content.email}
+                            </a>
+                          </div>
+                        )}
+                        {location && (
+                          <div className="flex items-start gap-2">
+                            <MapPin className="mt-0.5 h-4 w-4" />
+                            <span>{location}</span>
+                          </div>
+                        )}
+                      </div>
+                    {content.website ? (
+                      <Button className="mt-5 w-full" asChild>
+                        <a href={content.website} target="_blank" rel="noreferrer">
+                          Visit Website
+                        </a>
+                      </Button>
+                    ) : null}
+                  </div>
+
+                  {mapEmbedUrl ? (
+                    <div className="rounded-2xl border border-border bg-card p-4">
+                      <p className="text-sm font-semibold text-foreground">Location map</p>
+                      <div className="mt-4 overflow-hidden rounded-xl border border-border">
+                        <iframe
+                          title="Business location map"
+                          src={mapEmbedUrl}
+                          className="h-56 w-full"
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+                </>
+              )}
+            </aside>
           ) : null}
         </div>
 
-        <section className="mt-12">
+        <section className="mt-16">
           {related.length ? (
-            <>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-foreground">
-                More in {category}
-              </h2>
-              {taskConfig?.route && (
-                <Link
-                  href={taskConfig.route}
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                  View all
-                </Link>
-              )}
+            <div className="rounded-3xl bg-gradient-to-br from-neutral-50 to-neutral-100 p-8 border border-neutral-200">
+              <div className="mb-8 flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-semibold text-foreground">
+                    Related Collections
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Discover more bookmark collections in {category}
+                  </p>
+                </div>
+                {taskConfig?.route && (
+                  <Link
+                    href={taskConfig.route}
+                    className="inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-50"
+                  >
+                    View all
+                    <ExternalLink className="h-4 w-4" />
+                  </Link>
+                )}
+              </div>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {related.map((item) => (
+                  <div key={item.id} className="group rounded-2xl bg-white p-6 border border-neutral-200 hover:border-neutral-300 hover:shadow-md transition-all duration-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center">
+                        <Bookmark className="h-4 w-4 text-neutral-600" />
+                      </div>
+                      <Badge variant="secondary" className="text-xs">
+                        {item.tags?.[0] || category}
+                      </Badge>
+                    </div>
+                    <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                      <Link href={buildPostUrl(task, item.slug)} className="block">
+                        {item.title}
+                      </Link>
+                    </h3>
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                      {item.summary || 'No description available'}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">
+                        {item.authorName || 'Anonymous'}
+                      </span>
+                      <Link 
+                        href={buildPostUrl(task, item.slug)} 
+                        className="text-xs font-medium text-primary hover:underline"
+                      >
+                        View collection →
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((item) => (
-                <TaskPostCard
-                  key={item.id}
-                  post={item}
-                  href={buildPostUrl(task, item.slug)}
-                />
-              ))}
-            </div>
-            </>
           ) : null}
           <nav className="mt-6 rounded-2xl border border-border bg-card/60 p-4">
             <p className="text-sm font-semibold text-foreground">Related links</p>
@@ -525,14 +635,6 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
                   </Link>
                 </li>
               ) : null}
-              <li>
-                <Link
-                  href={`/search?q=${encodeURIComponent(category)}`}
-                  className="text-primary underline-offset-4 hover:underline"
-                >
-                  Search more in {category}
-                </Link>
-              </li>
             </ul>
           </nav>
         </section>
@@ -540,4 +642,25 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
       <Footer />
     </div>
   );
+}
+
+// Server component for data fetching
+export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: string }) {
+  if (TASK_DETAIL_PAGE_OVERRIDE_ENABLED) {
+    return await TaskDetailPageOverride({ task, slug });
+  }
+
+  const taskConfig = getTaskConfig(task);
+  let post: SitePost | null = null;
+  try {
+    post = await fetchTaskPostBySlug(task, slug);
+  } catch (error) {
+    console.warn("Failed to load post detail", error);
+  }
+
+  if (!post) {
+    notFound();
+  }
+
+  return <TaskDetailPageClient task={task} slug={slug} post={post} taskConfig={taskConfig} />;
 }

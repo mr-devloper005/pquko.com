@@ -1,5 +1,8 @@
+'use client'
+
 import type { ReactNode } from 'react'
-import { NavbarShell } from '@/components/shared/navbar-shell'
+import { Suspense } from 'react'
+import { Navbar } from '@/components/shared/navbar'
 import { Footer } from '@/components/shared/footer'
 
 type MarketingPublicShellProps = {
@@ -17,7 +20,9 @@ export function MarketingPublicShell({ eyebrow, title, description, actions, her
 
   return (
     <div className="min-h-screen bg-white text-neutral-950">
-      <NavbarShell />
+      <Suspense fallback={<div className="h-20" />}>
+        <Navbar />
+      </Suspense>
       <header className="relative overflow-hidden border-b border-neutral-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#fafafa_55%,#fff7ed_100%)]">
         <div className="pointer-events-none absolute left-[6%] top-20 hidden h-20 w-36 rounded-[1.25rem] bg-[#fde68a]/90 lg:block" />
         <div className="pointer-events-none absolute right-[8%] top-32 hidden h-24 w-40 rounded-[1.25rem] bg-[#e9d5ff]/90 lg:block" />

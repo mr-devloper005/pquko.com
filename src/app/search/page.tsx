@@ -8,6 +8,7 @@ import { getMockPostsForTask } from '@/lib/mock-posts'
 import { SITE_CONFIG } from '@/lib/site-config'
 import { TaskPostCard } from '@/components/shared/task-post-card'
 import { MarketingFeatureCard, MarketingPublicShell, MarketingStatGrid } from '@/components/marketing/marketing-public-shell'
+import { CATEGORY_OPTIONS } from '@/lib/categories'
 
 export const revalidate = 3
 
@@ -72,17 +73,29 @@ export default async function SearchPage({
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Search</p>
       <form action="/search" className="mt-4 space-y-3">
         <input type="hidden" name="master" value="1" />
-        {category ? <input type="hidden" name="category" value={category} /> : null}
         {task ? <input type="hidden" name="task" value={task} /> : null}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-          <Input name="q" defaultValue={query} placeholder="Profiles, collections, links…" className="h-12 rounded-2xl border-neutral-200 pl-10 text-neutral-950" />
+          <Input name="q" defaultValue={query} placeholder="Search collections and links…" className="h-12 rounded-2xl border-neutral-200 pl-10 text-neutral-950" />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-neutral-500">Category</label>
+          <select
+            name="category"
+            defaultValue={category || 'all'}
+            className="mt-1 h-11 w-full rounded-xl border border-neutral-200 bg-white px-3 text-sm text-neutral-950 focus:border-neutral-400 focus:outline-none"
+          >
+            <option value="all">All categories</option>
+            {CATEGORY_OPTIONS.map((item) => (
+              <option key={item.slug} value={item.slug}>{item.name}</option>
+            ))}
+          </select>
         </div>
         <Button type="submit" className="h-11 w-full rounded-full bg-neutral-950 text-white hover:bg-neutral-800">
           Search
         </Button>
       </form>
-      <p className="mt-4 text-xs text-neutral-500">Tip: start broad, then filter by category from each task page.</p>
+      <p className="mt-4 text-xs text-neutral-500">Tip: select a category to filter results, or search by keyword.</p>
     </div>
   )
 
@@ -92,8 +105,8 @@ export default async function SearchPage({
       title="Search the community"
       description={
         query
-          ? `Showing matches for “${query}” across profiles, bookmarks, and more.`
-          : 'Find people, public collections, and saved resources in one place—without switching tools.'
+          ? `Showing matches for "${query}" across bookmark collections and resources.`
+          : 'Find public collections and saved resources in one place—without switching tools.'
       }
       heroAside={searchForm}
     >
@@ -101,7 +114,7 @@ export default async function SearchPage({
         <MarketingStatGrid
           items={[
             { value: String(results.length), label: 'Results in view', hint: query ? 'For your current query' : 'Latest slice of the index' },
-            { value: '2', label: 'Core formats', hint: 'Profiles & bookmark collections' },
+            { value: '1', label: 'Core format', hint: 'Bookmark collections & curated links' },
             { value: '< 200ms', label: 'Typical feel', hint: 'Lightweight cards and caching' },
             { value: '24/7', label: 'Self-serve discovery', hint: 'No gatekeeping on public boards' },
           ]}
@@ -120,12 +133,24 @@ export default async function SearchPage({
         </MarketingFeatureCard>
         <MarketingFeatureCard
           tone="violet"
-          title="Looking for a person?"
-          description="Profiles summarize roles, links, and featured collections so you know who you are following."
+          title="Browse by category?"
+          description="Filter collections by topic to find exactly what you are looking for—quick and easy."
         >
-          <Button asChild variant="outline" className="rounded-full border-neutral-300 bg-white">
-            <Link href="/profile">Browse profiles</Link>
-          </Button>
+          <form action="/search" className="flex gap-2">
+            <input type="hidden" name="master" value="1" />
+            <select
+              name="category"
+              className="h-10 flex-1 rounded-full border border-neutral-300 bg-white px-3 text-sm"
+            >
+              <option value="">Select category</option>
+              {CATEGORY_OPTIONS.slice(0, 6).map((item) => (
+                <option key={item.slug} value={item.slug}>{item.name}</option>
+              ))}
+            </select>
+            <Button type="submit" size="sm" className="rounded-full bg-neutral-950 text-white">
+              Go
+            </Button>
+          </form>
         </MarketingFeatureCard>
       </div>
 
@@ -144,9 +169,6 @@ export default async function SearchPage({
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button asChild className="rounded-full bg-neutral-950 text-white hover:bg-neutral-800">
               <Link href="/sbm">View bookmarks</Link>
-            </Button>
-            <Button asChild variant="outline" className="rounded-full border-neutral-300">
-              <Link href="/profile">View profiles</Link>
             </Button>
           </div>
         </div>

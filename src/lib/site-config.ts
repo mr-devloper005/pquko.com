@@ -53,11 +53,10 @@ export const SITE_CONFIG: SiteConfig = {
     titleTemplate: `%s | ${siteIdentity.name}`,
     description: siteIdentity.description,
     keywords: [
-      'profiles',
       'social bookmarking',
       'bookmark collections',
       'curated links',
-      'public profile',
+      'link saving',
       'content discovery',
       siteIdentity.name,
     ],
