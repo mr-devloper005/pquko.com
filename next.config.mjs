@@ -3,6 +3,8 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isProd = process.env.NODE_ENV === "production";
+// Point to project directory (not the app subdirectory)
+const projectRoot = __dirname;
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -18,7 +20,7 @@ const nextConfig = {
     ],
   },
   turbopack: {
-    root: __dirname,
+    root: projectRoot,
   },
 
   async redirects() {

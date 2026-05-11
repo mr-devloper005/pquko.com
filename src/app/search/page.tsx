@@ -154,25 +154,15 @@ export default async function SearchPage({
         </MarketingFeatureCard>
       </div>
 
-      {results.length ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {results.map((post) => {
-            const postTask = getPostTaskKey(post)
-            const href = postTask ? buildPostUrl(postTask, post.slug) : `/posts/${post.slug}`
-            return <TaskPostCard key={post.id} post={post} href={href} />
-          })}
+      <div className="rounded-[1.5rem] border border-dashed border-neutral-200 bg-neutral-50 px-8 py-14 text-center text-neutral-600">
+        <p className="text-lg font-semibold text-neutral-900">Browse collections</p>
+        <p className="mt-2 text-sm">Explore curated bookmarks and resources.</p>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Button asChild className="rounded-full bg-neutral-950 text-white hover:bg-neutral-800">
+            <Link href="/sbm">View bookmarks</Link>
+          </Button>
         </div>
-      ) : (
-        <div className="rounded-[1.5rem] border border-dashed border-neutral-200 bg-neutral-50 px-8 py-14 text-center text-neutral-600">
-          <p className="text-lg font-semibold text-neutral-900">No matches yet</p>
-          <p className="mt-2 text-sm">Try another phrase, or browse open collections first.</p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button asChild className="rounded-full bg-neutral-950 text-white hover:bg-neutral-800">
-              <Link href="/sbm">View bookmarks</Link>
-            </Button>
-          </div>
-        </div>
-      )}
+      </div>
     </MarketingPublicShell>
   )
 }

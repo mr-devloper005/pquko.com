@@ -2,7 +2,7 @@ import type { TaskKey } from '@/lib/site-config'
 
 export const siteContent = {
   navbar: {
-    tagline: 'Discover & save what matters',
+    tagline: '',
   },
   footer: {
     tagline: 'Discover & save what matters',
