@@ -35,10 +35,8 @@ const taskIcons: Record<TaskKey, any> = {
 }
 
 const marketingPlatformLinks = [
-  { name: 'Profiles', href: '/profile', icon: User },
   { name: 'Bookmarks', href: '/sbm', icon: Bookmark },
   { name: 'Explore', href: '/search', icon: Compass },
-  { name: 'About', href: '/about', icon: Info },
   { name: 'Pricing', href: '/contact', icon: CircleDollarSign },
 ] as const
 
