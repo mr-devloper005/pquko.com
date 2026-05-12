@@ -2,11 +2,9 @@
 
 FROM node:20-alpine AS base
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
-
 FROM base AS deps
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package.json package-lock.json ./
+RUN npm ci
 
 FROM base AS builder
 ARG NEXT_PUBLIC_MASTER_PANEL_URL
@@ -32,7 +30,7 @@ ENV NEXT_PUBLIC_SITE_DESCRIPTION=$NEXT_PUBLIC_SITE_DESCRIPTION
 ENV NEXT_PUBLIC_SITE_DOMAIN=$NEXT_PUBLIC_SITE_DOMAIN
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_OG_IMAGE=$NEXT_PUBLIC_SITE_OG_IMAGE
-RUN pnpm run build
+RUN npm run build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
