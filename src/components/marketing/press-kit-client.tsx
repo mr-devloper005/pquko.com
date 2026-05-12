@@ -63,7 +63,6 @@ export function PressKitClient({ assets, coverage }: { assets: PressAsset[]; cov
             <div key={item.id} className="rounded-[1.5rem] border border-neutral-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5">
               <div className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{item.outlet}</div>
               <p className="mt-2 text-sm font-medium text-neutral-900">{item.headline}</p>
-              <p className="mt-2 text-xs text-neutral-500">{item.date}</p>
             </div>
           ))}
         </div>

@@ -84,10 +84,6 @@ export default function AboutPage() {
               <span>Available worldwide, 100% online</span>
             </div>
             <div className="flex items-center gap-3 text-sm text-neutral-600">
-              <Phone className="h-5 w-5 text-neutral-400" />
-              <span>support@pquko.com</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm text-neutral-600">
               <Clock className="h-5 w-5 text-neutral-400" />
               <span>Always on—save and browse anytime</span>
             </div>
@@ -96,8 +92,7 @@ export default function AboutPage() {
         <div className="space-y-5">
           {history.map((m) => (
             <div key={m.year} className="rounded-[1.25rem] border border-neutral-200 bg-white p-5 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">{m.year}</p>
-              <p className="mt-2 text-lg font-semibold text-neutral-950">{m.title}</p>
+              <p className="text-lg font-semibold text-neutral-950">{m.title}</p>
               <p className="mt-2 text-sm text-neutral-600">{m.body}</p>
             </div>
           ))}
